@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>EcoFinds — Full Demo</title>
+<style>
+  *{box-sizing:border-box} body{font-family:Inter,Arial,Helvetica,sans-serif;margin:0;background:#f4f6f6;color:#222}
+  .container{max-width:1100px;margin:0 auto;padding:0 16px}
+  header.app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,#2e7d32,#28a745);color:#fff;padding:12px 16px;box-shadow:0 3px 12px rgba(0,0,0,0.12);position:sticky;top:0;z-index:1000}
+  .brand{display:flex;align-items:center;gap:12px;cursor:pointer}
+  .brand .leaf{width:44px;height:44px;display:inline-block;background:url('https://img.icons8.com/ios-filled/50/ffffff/leaf.png') center/contain no-repeat;filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));transform-origin:center;animation:leafSwing 2.8s infinite ease-in-out}
+  @keyframes leafSwing{0%{transform:rotate(0deg)}25%{transform:rotate(-12deg)}50%{transform:rotate(10deg)}75%{transform:rotate(-6deg)}100%{transform:rotate(0deg)}}
+  .brand h1{font-size:20px;margin:0;font-weight:700;letter-spacing:0.2px}
+  .nav-actions{display:flex;align-items:center;gap:10px}
+  .nav-actions button{background:#fff;color:#2e7d32;border:none;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:700}
+  .nav-actions button.badge::after{content:attr(data-count);display:inline-block;margin-left:8px;background:#ff3b30;color:white;padding:2px 7px;border-radius:999px;font-size:12px}
+  section{display:none;padding:20px 0}
+  section.active{display:block}
+  .card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06)}
+  .auth-wrap{max-width:480px;margin:36px auto}
+  .auth-wrap img{width:70px;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto}
+  .auth-wrap h2{text-align:center;color:#2e7d32;margin-bottom:8px}
+  .field{margin:10px 0}
+  input[type="email"],input[type="password"],input[type="text"],textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ddd;font-size:15px}
+  .muted{text-align:center;color:#666;font-size:14px;margin-top:10px}
+  .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0}
+  .controls input[type="search"]{flex:1;padding:10px;border-radius:10px;border:1px solid #ddd}
+  .categories{display:flex;gap:8px;flex-wrap:wrap}
+  .categories button{background:#e9f5ee;color:#2e7d32;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
+  .categories button.active{background:#2e7d32;color:#fff}
+  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px;margin-top:12px}
+  .product-card{background:#fff;border-radius:12px;padding:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);overflow:hidden;position:relative}
+  .product-card img{width:100%;height:150px;object-fit:cover;border-radius:8px;transition:transform .35s ease}
+  .product-card:hover img{transform:scale(1.08)}
+  .product-card h4{margin:10px 0 6px;font-size:15px}
+  .product-card p.price{font-weight:700;color:#2e7d32;margin-bottom:8px}
+  .product-card .card-actions{display:flex;gap:8px}
+  .btn{padding:8px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:700}
+  .btn.add{background:#ff9900;color:#fff;flex:1}
+  .btn.view{background:#2e7d32;color:#fff}
+  .quick-view{position:absolute;left:10px;top:10px;background:rgba(0,0,0,0.5);color:white;padding:6px 8px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s}
+  .product-card:hover .quick-view{opacity:1}
+  .layout{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:980px){.layout{grid-template-columns:1fr 320px}}
+  .side-card{position:sticky;top:90px}
+  .detail-box img{width:100%;height:220px;object-fit:cover;border-radius:10px}
+  .listing-item{display:flex;gap:12px;align-items:center;padding:10px;background:#fff;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,0.05)}
+  .listing-item img{width:90px;height:70px;object-fit:cover;border-radius:8px}
+  .listing-actions{display:flex;gap:8px}
+  .cart-item{display:flex;gap:12px;align-items:center;background:#fff;padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.05);margin-bottom:12px}
+  .cart-item img{width:90px;height:70px;object-fit:cover;border-radius:8px}
+  .qty-controls{display:inline-flex;border-radius:8px;overflow:hidden;border:1px solid #ddd}
+  .qty-controls button{padding:6px 10px;border:none;background:#fff;cursor:pointer}
+  .total-row{text-align:right;font-weight:800;margin-top:6px}
+  .checkout-box{max-width:520px;margin:18px auto;padding:16px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.06)}
+  .payment-row{display:flex;gap:8px;align-items:center;margin:8px 0}
+  .order-summary{background:#f0f9f3;padding:10px;border-radius:8px;margin-bottom:12px}
+  .muted-small{color:#666;font-size:13px}
+  .center{text-align:center}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:12px;width:100%">
+      <div class="brand" onclick="showScreen('login-screen')" title="EcoFinds">
+        <span class="leaf"></span>
+        <h1>EcoFinds</h1>
+      </div>
+      <div style="flex:1"></div>
+      <div class="nav-actions" style="justify-self:end">
+        <button onclick="showScreen('product-feed')">Home</button>
+        <button onclick="showScreen('my-listings')">My Listings</button>
+        <button onclick="showScreen('dashboard')">Profile</button>
+        <button onclick="showScreen('previous-purchases')">Orders</button>
+        <button class="badge" data-count="0" onclick="showScreen('cart')">Cart</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <section id="login-screen" class="active">
+    <div class="auth-wrap card">
+      <img src="https://img.icons8.com/ios-filled/80/2e7d32/leaf.png">
+      <h2>Welcome to EcoFinds</h2>
+      <div class="field"><input id="loginEmail" type="email" placeholder="Email"></div>
+      <div class="field"><input id="loginPass" type="password" placeholder="Password"></div>
+      <div class="field"><button id="loginBtn" class="btn btn-primary">Login</button></div>
+      <p class="muted">Don't have an account? <button onclick="showScreen('signup-screen')" style="background:none;border:none;color:#2e7d32;cursor:pointer">Sign Up</button></p>
+    </div>
+  </section>
+
+  <!-- SIGNUP -->
+  <section id="signup-screen">
+    <div class="auth-wrap card">
+      <img src="https://img.icons8.com/ios-filled/80/2e7d32/leaf.png">
+      <h2>Create Account</h2>
+      <div class="field"><input id="signupName" type="text" placeholder="Full name"></div>
+      <div class="field"><input id="signupEmail" type="email" placeholder="Email"></div>
+      <div class="field"><input id="signupPass" type="password" placeholder="Password"></div>
+      <div class="field"><button class="btn btn-primary" onclick="doSignup()">Create Account</button></div>
+      <p class="muted">Already have an account? <button onclick="showScreen('login-screen')" style="background:none;border:none;color:#2e7d32;cursor:pointer">Login</button></p>
+    </div>
+  </section>
+
+  <!-- PRODUCT FEED -->
+  <section id="product-feed">
+    <div class="controls">
+      <input type="search" placeholder="Search products..." id="searchInput">
+    </div>
+    <div class="categories">
+      <button class="active" data-cat="all">All</button>
+      <button data-cat="clothing">Clothing</button>
+      <button data-cat="home">Home</button>
+      <button data-cat="electronics">Electronics</button>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+  </section>
+
+  <!-- MY LISTINGS -->
+  <section id="my-listings">
+    <h2>My Listings</h2>
+    <div id="listingGrid"></div>
+    <h3>Add New Product</h3>
+    <div class="card" style="padding:12px">
+      <input id="newTitle" type="text" placeholder="Product title" class="field">
+      <input id="newPrice" type="number" placeholder="Price" class="field">
+      <select id="newCategory" class="field">
+        <option value="clothing">Clothing</option>
+        <option value="home">Home</option>
+        <option value="electronics">Electronics</option>
+      </select>
+      <input id="newImg" type="text" placeholder="Image URL" class="field">
+      <button class="btn btn-primary" onclick="addListing()">Add Product</button>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard">
+    <div class="card">
+      <h2>User Dashboard</h2>
+      <div class="field"><input id="profileName" type="text" placeholder="Name"></div>
+      <div class="field"><input id="profileEmail" type="email" placeholder="Email"></div>
+      <button class="btn btn-primary" onclick="saveProfile()">Save</button>
+    </div>
+  </section>
+
+  <!-- CART -->
+  <section id="cart">
+    <h2>Shopping Cart</h2>
+    <div id="cartGrid"></div>
+    <div class="total-row">Total: $<span id="cartTotal">0</span></div>
+    <button class="btn btn-primary" onclick="checkout()">Checkout</button>
+  </section>
+
+  <!-- PREVIOUS PURCHASES -->
+  <section id="previous-purchases">
+    <h2>Previous Orders</h2>
+    <div id="ordersGrid"></div>
+  </section>
+
+</div>
+
+<script>
+let products = [
+  {id:1,title:'Eco T-Shirt',price:25,category:'clothing',img:'https://picsum.photos/200?random=1'},
+  {id:2,title:'Bamboo Cup',price:12,category:'home',img:'https://picsum.photos/200?random=2'},
+  {id:3,title:'Solar Lamp',price:45,category:'electronics',img:'https://picsum.photos/200?random=3'}
+];
+let myListings = [],cart=[],orders=[];
+
+function showScreen(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  renderProducts();
+  renderListings();
+  renderCart();
+  renderOrders();
+}
+
+function renderProducts(){
+  const grid = document.getElementById('productGrid');
+  if(!grid) return;
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const catBtn = document.querySelector('.categories button.active');
+  const cat = catBtn?.dataset.cat || 'all';
+  grid.innerHTML='';
+  products.filter(p=>{
+    return (cat==='all'||p.category===cat) && p.title.toLowerCase().includes(search);
+  }).forEach(p=>{
+    const div = document.createElement('div');
+    div.className='product-card';
+    div.innerHTML=`<img src="${p.img}"><h4>${p.title}</h4><p class="price">$${p.price}</p><button class="btn add" onclick="addToCart(${p.id})">Add to Cart</button>`;
+    grid.appendChild(div);
+  });
+}
+
+document.querySelectorAll('.categories button').forEach(b=>{
+  b.addEventListener('click',()=>{document.querySelectorAll('.categories button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderProducts();});
+});
+
+document.getElementById('searchInput').addEventListener('input',renderProducts);
+
+function addToCart(id){
+  const p = products.find(x=>x.id===id);
+  if(!p) return;
+  const c = cart.find(x=>x.id===id);
+  if(c){c.qty++;} else {cart.push({...p,qty:1});}
+  renderCart();
+}
+
+function renderCart(){
+  const grid = document.getElementById('cartGrid');
+  if(!grid) return;
+  grid.innerHTML='';
+  let total=0;
+  cart.forEach(c=>{
+    total+=c.price*c.qty;
+    const div=document.createElement('div');
+    div.className='cart-item';
+    div.innerHTML=`<img src="${c.img}"><div>${c.title}<br>$${c.price} x ${c.qty}</div>
+      <div class="qty-controls">
+        <button onclick="changeQty(${c.id},-1)">-</button>
+        <button onclick="changeQty(${c.id},1)">+</button>
+        <button onclick="removeCart(${c.id})">Remove</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+  document.getElementById('cartTotal').textContent=total;
+  document.querySelector('.nav-actions .badge').dataset.count=cart.reduce((a,b)=>a+b.qty,0);
+}
+
+function changeQty(id,amt){
+  const c=cart.find(x=>x.id===id);
+  if(!c) return;
+  c.qty+=amt;
+  if(c.qty<1) removeCart(id);
+  renderCart();
+}
+
+function removeCart(id){cart=cart.filter(x=>x.id!==id);renderCart();}
+
+function checkout(){
+  if(cart.length===0){alert('Cart empty'); return;}
+  orders.push(...cart.map(x=>({...x,date:new Date()})));
+  cart=[];renderCart();alert('Order placed!'); showScreen('previous-purchases');
+}
+
+function renderOrders(){
+  const grid=document.getElementById('ordersGrid');
+  if(!grid) return;
+  grid.innerHTML='';
+  orders.forEach(o=>{
+    const div=document.createElement('div');
+    div.className='order-summary';
+    div.innerHTML=`${o.title} - $${o.price} x ${o.qty} <br><span class="muted-small">${o.date.toLocaleString()}</span>`;
+    grid.appendChild(div);
+  });
+}
+
+document.getElementById('loginBtn').addEventListener('click',()=>{
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value.trim();
+  if(!email || !pass){alert('Enter email & password');return;}
+  document.getElementById('profileEmail').value=email;
+  document.getElementById('profileName').value=email.split('@')[0];
+  alert(`Welcome ${email.split('@')[0]}!`);
+  showScreen('product-feed');
+});
+
+function doSignup(){
+  const name=document.getElementById('signupName').value.trim();
+  const email=document.getElementById('signupEmail').value.trim();
+  const pass=document.getElementById('signupPass').value.trim();
+  if(!name||!email||!pass){alert('Fill all fields');return;}
+  document.getElementById('profileName').value=name;
+  document.getElementById('profileEmail').value=email;
+  alert(`Account created for ${name}`);
+  showScreen('product-feed');
+}
+
+function saveProfile(){alert('Profile saved'); showScreen('product-feed');}
+
+function addListing(){
+  const t=document.getElementById('newTitle').value.trim();
+  const p=Number(document.getElementById('newPrice').value);
+  const c=document.getElementById('newCategory').value;
+  const img=document.getElementById('newImg').value.trim();
+  if(!t||!p||!c||!img){alert('Fill all fields'); return;}
+  const id=Date.now();
+  const newProd={id,title:t,price:p,category:c,img};
+  products.push(newProd);
+  myListings.push(newProd);
+  alert('Product added!');
+  document.getElementById('newTitle').value='';
+  document.getElementById('newPrice').value='';
+  document.getElementById('newImg').value='';
+  renderListings();
+  renderProducts();
+}
+
+function renderListings(){
+  const grid=document.getElementById('listingGrid');
+  if(!grid) return;
+  grid.innerHTML='';
+  myListings.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='listing-item';
+    div.innerHTML=`<img src="${p.img}"><div>${p.title}<br>$${p.price}<br>${p.category}</div>
+      <div class="listing-actions">
+        <button onclick="editListing(${p.id})">Edit</button>
+        <button onclick="deleteListing(${p.id})">Delete</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+function editListing(id){
+  const p=myListings.find(x=>x.id===id);
+  if(!p) return;
+  const t=prompt('Title',p.title);
+  const pr=prompt('Price',p.price);
+  const cat=prompt('Category',p.category);
+  if(t) p.title=t;
+  if(pr) p.price=Number(pr);
+  if(cat) p.category=cat;
+  renderListings();
+  renderProducts();
+}
+
+function deleteListing(id){
+  if(!confirm('Delete?')) return;
+  products=products.filter(x=>x.id!==id);
+  myListings=myListings.filter(x=>x.id!==id);
+  renderListings();
+  renderProducts();
+}
+
+showScreen('login-screen');
+</script>
+
+</body>
+</html>
